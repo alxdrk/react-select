@@ -144,6 +144,10 @@ class Select extends React.Component {
 		if (this.state.inputValue && this.props.value !== nextProps.value && nextProps.onSelectResetsInput) {
 			this.setState({ inputValue: this.handleInputValueChange('') });
 		}
+		
+		if (nextProps.alwaysOpened) {
+			this.setState(() => ({ isOpen: true }));
+		}
 	}
 
 	componentDidUpdate (prevProps, prevState) {
@@ -191,7 +195,7 @@ class Select extends React.Component {
 			this.setState({ isFocused: false }); // eslint-disable-line react/no-did-update-set-state
 			this.closeMenu();
 		}
-		if (prevState.isOpen !== this.state.isOpen) {
+		if (!prevProps.alwaysOpened && prevState.isOpen !== this.state.isOpen) {
 			this.toggleTouchOutsideEvent(this.state.isOpen);
 			const handler = this.state.isOpen ? this.props.onOpen : this.props.onClose;
 			handler && handler();
@@ -368,6 +372,10 @@ class Select extends React.Component {
 	}
 
 	closeMenu () {
+		if (this.props.alwaysOpened) {
+			return;
+		}
+		
 		if(this.props.onCloseResetsInput) {
 			this.setState({
 				inputValue: this.handleInputValueChange(''),
@@ -403,6 +411,10 @@ class Select extends React.Component {
 	}
 
 	handleInputBlur (event) {
+		if (this.props.alwaysOpened) {
+			return;
+		}
+		
 		// The check for menu.contains(activeElement) is necessary to prevent IE11's scrollbar from closing the menu in certain contexts.
 		if (this.menu && (this.menu === document.activeElement || this.menu.contains(document.activeElement))) {
 			this.focus();
@@ -672,6 +684,10 @@ class Select extends React.Component {
 		// if the event was triggered by a mousedown and not the primary
 		// button, ignore it.
 		if (event && event.type === 'mousedown' && event.button !== 0) {
+			return;
+		}
+		
+		if (this.props.alwaysOpened) {
 			return;
 		}
 
