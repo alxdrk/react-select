@@ -764,6 +764,12 @@ var Select$1 = function (_React$Component) {
 			if (this.state.inputValue && this.props.value !== nextProps.value && nextProps.onSelectResetsInput) {
 				this.setState({ inputValue: this.handleInputValueChange('') });
 			}
+
+			if (nextProps.alwaysOpened) {
+				this.setState(function () {
+					return { isOpen: true };
+				});
+			}
 		}
 	}, {
 		key: 'componentDidUpdate',
@@ -812,7 +818,7 @@ var Select$1 = function (_React$Component) {
 				this.setState({ isFocused: false }); // eslint-disable-line react/no-did-update-set-state
 				this.closeMenu();
 			}
-			if (prevState.isOpen !== this.state.isOpen) {
+			if (!prevProps.alwaysOpened && prevState.isOpen !== this.state.isOpen) {
 				this.toggleTouchOutsideEvent(this.state.isOpen);
 				var handler = this.state.isOpen ? this.props.onOpen : this.props.onClose;
 				handler && handler();
@@ -1002,6 +1008,10 @@ var Select$1 = function (_React$Component) {
 	}, {
 		key: 'closeMenu',
 		value: function closeMenu() {
+			if (this.props.alwaysOpened) {
+				return;
+			}
+
 			if (this.props.onCloseResetsInput) {
 				this.setState({
 					inputValue: this.handleInputValueChange(''),
@@ -1039,6 +1049,10 @@ var Select$1 = function (_React$Component) {
 	}, {
 		key: 'handleInputBlur',
 		value: function handleInputBlur(event) {
+			if (this.props.alwaysOpened) {
+				return;
+			}
+
 			// The check for menu.contains(activeElement) is necessary to prevent IE11's scrollbar from closing the menu in certain contexts.
 			if (this.menu && (this.menu === document.activeElement || this.menu.contains(document.activeElement))) {
 				this.focus();
@@ -1357,6 +1371,10 @@ var Select$1 = function (_React$Component) {
 			// if the event was triggered by a mousedown and not the primary
 			// button, ignore it.
 			if (event && event.type === 'mousedown' && event.button !== 0) {
+				return;
+			}
+
+			if (this.props.alwaysOpened) {
 				return;
 			}
 
@@ -1919,6 +1937,7 @@ Select$1.propTypes = {
 	autoFocus: PropTypes.bool, // autofocus the component on mount
 	autofocus: PropTypes.bool, // deprecated; use autoFocus instead
 	autosize: PropTypes.bool, // whether to enable autosizing or not
+	alwaysOpened: PropTypes.bool, // always opened
 	backspaceRemoves: PropTypes.bool, // whether backspace removes an item if there is no text input
 	backspaceToRemoveMessage: PropTypes.string, // message to use for screenreaders to press backspace to remove the current item - {label} is replaced with the item label
 	className: PropTypes.string, // className for the outer element
@@ -1992,6 +2011,7 @@ Select$1.propTypes = {
 Select$1.defaultProps = {
 	arrowRenderer: arrowRenderer,
 	autosize: true,
+	alwaysOpened: false,
 	backspaceRemoves: true,
 	backspaceToRemoveMessage: 'Press backspace to remove {label}',
 	clearable: true,
